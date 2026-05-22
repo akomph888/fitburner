@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitBurner - โปรแกรมวางแผนและออกกำลังกายลดน้ำหนักอัจฉริยะ</title>
+    <!-- Tailwind CSS CDN for modern grid and utility-first styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons for beautiful visual buttons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Thai and English modern clean look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Prompt', 'Sarabun', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+        }
+        .neon-glow {
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #10b981;
+        }
+
+        /* --- SVG STICKMAN ANIMATION KEYFRAMES --- */
+        @keyframes squat-body {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(18px); }
+        }
+        @keyframes squat-thighs {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-35deg); }
+        }
+        @keyframes pushup-body {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(12px) rotate(3deg); }
+        }
+        @keyframes jack-arms-l {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(110deg); }
+        }
+        @keyframes jack-arms-r {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-110deg); }
+        }
+        @keyframes jack-legs-l {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(20deg); }
+        }
+        @keyframes jack-legs-r {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-20deg); }
+        }
+        @keyframes climber-legs-l {
+            0%, 100% { transform: scaleX(1) translateY(0); }
+            50% { transform: scaleX(0.4) translateY(-4px); }
+        }
+        @keyframes climber-legs-r {
+            0%, 100% { transform: scaleX(0.4) translateY(-4px); }
+            50% { transform: scaleX(1) translateY(0); }
+        }
+        @keyframes pulse-core {
+            0%, 100% { r: 4px; opacity: 0.3; }
+            50% { r: 10px; opacity: 0.8; fill: #ef4444; }
+        }
+        @keyframes run-arms-l {
+            0%, 100% { transform: rotate(-20deg); }
+            50% { transform: rotate(40deg); }
+        }
+        @keyframes run-legs-l {
+            0%, 100% { transform: rotate(-30deg); }
+            50% { transform: rotate(30deg); }
+        }
+        @keyframes run-legs-r {
+            0%, 100% { transform: rotate(30deg); }
+            50% { transform: rotate(-30deg); }
+        }
+
+        /* Classes to apply animations */
+        .anim-squat { animation: squat-body 1.5s infinite ease-in-out; }
+        .anim-pushup { animation: pushup-body 1.2s infinite ease-in-out; }
+        .anim-jack-arm-l { animation: jack-arms-l 0.8s infinite ease-in-out; transform-origin: 45px 35px; }
+        .anim-jack-arm-r { animation: jack-arms-r 0.8s infinite ease-in-out; transform-origin: 55px 35px; }
+        .anim-jack-leg-l { animation: jack-legs-l 0.8s infinite ease-in-out; transform-origin: 47px 55px; }
+        .anim-jack-leg-r { animation: jack-legs-r 0.8s infinite ease-in-out; transform-origin: 53px 55px; }
+        .anim-climber-l { animation: climber-legs-l 0.6s infinite linear; transform-origin: 30px 55px; }
+        .anim-climber-r { animation: climber-legs-r 0.6s infinite linear; transform-origin: 30px 55px; }
+        .anim-pulse { animation: pulse-core 1s infinite ease-in-out; }
+        .anim-run-arm { animation: run-arms-l 0.7s infinite ease-in-out; transform-origin: 50px 35px; }
+        .anim-run-leg-l { animation: run-legs-l 0.7s infinite ease-in-out; transform-origin: 50px 55px; }
+        .anim-run-leg-r { animation: run-legs-r 0.7s infinite ease-in-out; transform-origin: 50px 55px; }
+    </style>
+</head>
+<body class="min-h-screen text-slate-100 flex flex-col pb-12 selection:bg-emerald-500 selection:text-slate-900">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-xl flex items-center justify-center text-slate-900 shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-fire-flame-curved text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-extrabold tracking-tight text-white flex items-center">
+                        FitBurner <span class="ml-2 text-3xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full uppercase">Pro</span>
+                    </h1>
+                    <p class="text-3xs text-slate-400 -mt-0.5">วางแผนเผาผลาญไขมันเฉพาะบุคคล</p>
+                </div>
+            </div>
+            
+            <!-- Navigation items for desktop -->
+            <div class="hidden md:flex space-x-2">
+                <button onclick="changeSection('onboarding')" id="btn-tab-onboarding" class="px-4 py-2 rounded-xl text-xs font-semibold text-emerald-400 bg-slate-800 border border-slate-700/60 transition-all">
+                    <i class="fa-solid fa-bullseye mr-1.5"></i> ตั้งเป้าหมาย
+                </button>
+                <button onclick="changeSection('generator')" id="btn-tab-generator" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-dumbbell mr-1.5"></i> เลือกวิธีออกกำลังกาย
+                </button>
+                <button onclick="changeSection('calendar')" id="btn-tab-calendar" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-calendar-alt mr-1.5"></i> โปรแกรมรายวัน
+                </button>
+                <button onclick="changeSection('tracker')" id="btn-tab-tracker" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-chart-line mr-1.5"></i> ติดตามน้ำหนัก
+                </button>
+            </div>
+
+            <div class="text-xs bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center">
+                <i class="fa-solid fa-weight-scale text-emerald-400 mr-2"></i>
+                <span id="header-progress-label" class="font-bold text-slate-300">ลดได้แล้ว: 0 กก.</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 flex justify-around py-2.5 z-50 shadow-2xl">
+        <button onclick="changeSection('onboarding')" id="mob-btn-onboarding" class="flex flex-col items-center space-y-1 text-emerald-400">
+            <i class="fa-solid fa-bullseye text-base"></i>
+            <span class="text-3xs font-medium">เป้าหมาย</span>
+        </button>
+        <button onclick="changeSection('generator')" id="mob-btn-generator" class="flex flex-col items-center space-y-1 text-slate-500">
+            <i class="fa-solid fa-dumbbell text-base"></i>
+            <span class="text-3xs font-medium">รูปแบบฝึก</span>
+        </button>
+        <button onclick="changeSection('calendar')" id="mob-btn-calendar" class="flex flex-col items-center space-y-1 text-slate-500">
+            <i class="fa-solid fa-calendar-day text-base"></i>
+            <span class="text-3xs font-medium">ตารางฝึก</span>
+        </button>
+        <button onclick="changeSection('tracker')" id="mob-btn-tracker" class="flex flex-col items-center space-y-1 text-slate-500">
+            <i class="fa-solid fa-chart-line text-base"></i>
+            <span class="text-3xs font-medium">กราฟคืบหน้า</span>
+        </button>
+    </div>
+
+    <!-- MAIN APP VIEWPORT CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-16 md:mb-0">
+        
+        <!-- ALERT MESSAGE CARD -->
+        <div id="global-alert" class="hidden mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-start space-x-3 text-emerald-300 shadow-sm">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-lg shrink-0 mt-0.5"></i>
+            <div class="text-xs sm:text-sm" id="global-alert-text">
+                บันทึกเป้าหมายสำเร็จแล้ว!
+            </div>
+        </div>
+
+        <!-- STAGE 1: ONBOARDING & GOAL SETTER -->
+        <section id="section-onboarding" class="section-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Inputs Side -->
+                <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-5">
+                    <h2 class="text-base sm:text-lg font-extrabold text-white flex items-center">
+                        <i class="fa-solid fa-calculator text-emerald-500 mr-2.5"></i> คำนวณขีดจำกัดและเป้าหมาย
+                    </h2>
+                    
+                    <form id="goal-form" onsubmit="handleCalculateGoals(event)" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-3xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">น้ำหนักปัจจุบัน (กก.)</label>
+                                <input type="number" id="input-weight" value="82" min="30" max="250" class="w-full bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-white font-semibold" required>
+                            </div>
+                            <div>
+                                <label class="block text-3xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">น้ำหนักเป้าหมาย (กก.)</label>
+                                <input type="number" id="input-target-weight" value="72" min="30" max="250" class="w-full bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-white font-semibold" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-3xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">ระยะเวลาในการลดน้ำหนัก (วัน)</label>
+                            <div class="relative">
+                                <input type="number" id="input-duration-days" value="60" min="7" max="365" class="w-full bg-slate-800/80 border border-slate-700/60 rounded-xl pl-4 pr-12 py-3 text-sm focus:outline-none focus:border-emerald-500 text-white font-semibold" required>
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500">วัน</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-3xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">ระดับความฟิตในการออกกำลังกาย</label>
+                            <select id="input-fitness-level" class="w-full bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-slate-300">
+                                <option value="beginner" selected>ผู้เริ่มต้น (Beginner) — ออกกำลังกายเบา สัปดาห์ละ 1-2 วัน</option>
+                                <option value="intermediate">ปานกลาง (Intermediate) — ขยับร่างกายดี ชอบทำคาร์ดิโอ</option>
+                                <option value="advanced">สายแข็ง (Advanced) — แข็งแรงมาก สามารถเล่นหนักหรือ HIIT ได้</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-600 hover:to-teal-500 text-slate-900 font-bold py-3.5 rounded-xl transition-all shadow-md shadow-emerald-500/10 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>ประมวลผลเป้าหมายทางฟิสิกส์</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Analysis Outcomes Side -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                        <div class="absolute -right-6 -bottom-6 opacity-5 text-9xl">
+                            <i class="fa-solid fa-heart-pulse"></i>
+                        </div>
+                        
+                        <h2 class="text-base sm:text-lg font-extrabold text-white mb-4 flex items-center">
+                            <i class="fa-solid fa-circle-nodes text-emerald-400 mr-2.5"></i> รายงานสถิติแคลอรีและการลดน้ำหนัก
+                        </h2>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+                            <div class="bg-slate-800/40 border border-slate-800 p-4 rounded-2xl">
+                                <p class="text-3xs font-bold text-slate-400 uppercase">น้ำหนักที่ต้องลดทั้งหมด</p>
+                                <p class="text-xl font-black text-emerald-400 mt-1" id="stat-loss-total">10.0 <span class="text-xs font-medium">กก.</span></p>
+                                <span class="text-4xs text-slate-500">เทียบเท่าไขมันสะสม</span>
+                            </div>
+                            <div class="bg-slate-800/40 border border-slate-800 p-4 rounded-2xl">
+                                <p class="text-3xs font-bold text-slate-400 uppercase">ต้องการพลังงานติดลบรวม</p>
+                                <p class="text-xl font-black text-white mt-1" id="stat-deficit-total">77,000 <span class="text-xs font-medium">kcal</span></p>
+                                <span class="text-4xs text-slate-500">7,700 kcal ต่อ 1 กก.</span>
+                            </div>
+                            <div class="bg-slate-800/40 border border-slate-800 p-4 rounded-2xl col-span-2 sm:col-span-1">
+                                <p class="text-3xs font-bold text-slate-400 uppercase">เป้าหมายคุมติดลบต่อวัน</p>
+                                <p class="text-xl font-black text-teal-400 mt-1" id="stat-deficit-daily">1,283 <span class="text-xs font-medium">kcal</span></p>
+                                <span class="text-4xs text-slate-500" id="stat-deficit-subtitle">เฉลี่ยลดเหนื่อยปานกลาง</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-800/60 border border-slate-800 p-4 rounded-2xl mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-slate-300">อัตราความยากและความปลอดภัยของโปรแกรม:</span>
+                                <span class="text-xs font-extrabold text-emerald-400" id="stat-feasibility-rating">ปลอดภัยสูงมาก (Healthy)</span>
+                            </div>
+                            <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                                <div id="stat-feasibility-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 75%"></div>
+                            </div>
+                            <p class="text-3xs text-slate-400 mt-2" id="stat-feasibility-desc">
+                                อัตราความเร็วในการลดเหมาะสมสอดคล้องตามเกณฑ์ความปลอดภัย
+                            </p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <h3 class="text-xs font-bold text-slate-300 flex items-center">
+                                <i class="fa-solid fa-chart-pie text-emerald-400 mr-2"></i> สัดส่วนการสร้างสมดุลติดลบพลังงานรายวัน (แคลอรีที่แนะนำ)
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="bg-emerald-500/5 border border-emerald-500/20 p-4 rounded-xl">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-xs font-bold text-emerald-400"><i class="fa-solid fa-bowl-rice mr-1.5"></i> ปรับพฤติกรรมอาหาร (60%)</span>
+                                    </div>
+                                    <p class="text-lg font-black text-white" id="stat-split-diet">770 <span class="text-2xs font-normal">kcal / วัน</span></p>
+                                    <span class="text-4xs text-slate-400">ควบคุมแคลอรีจากมื้ออาหารหลัก</span>
+                                </div>
+                                <div class="bg-teal-500/5 border border-teal-500/20 p-4 rounded-xl">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <span class="text-xs font-bold text-teal-400"><i class="fa-solid fa-dumbbell mr-1.5"></i> ออกกำลังกายเผาผลาญ (40%)</span>
+                                    </div>
+                                    <p class="text-lg font-black text-white" id="stat-split-workout">513 <span class="text-2xs font-normal">kcal / วัน</span></p>
+                                    <span class="text-4xs text-slate-400">ขยับร่างกายเพื่อทำลายแคลอรีส่วนเกิน</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STAGE 2: WORKOUT PREFERENCE SELECTOR -->
+        <section id="section-generator" class="section-content hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5 mb-6">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-extrabold text-white">เลือกรูปแบบประเภทการออกกำลังกายที่คุณชอบ</h2>
+                        <p class="text-xs text-slate-400">ติ๊กเลือกรูปแบบที่สะดวกและถนัด เพื่อให้ระบบวางแผนจัดลงตารางโปรแกรม 7 วัน</p>
+                    </div>
+                    <button onclick="generateCustomWorkoutPlan()" class="px-5 py-3 bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-1.5 shadow-md shadow-emerald-500/10">
+                        <i class="fa-solid fa-arrows-spin"></i>
+                        <span>เริ่มสร้างโปรแกรม 7 วันอัตโนมัติ</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="workout-cards-container">
+                    <!-- Cardio Types -->
+                    <div class="bg-slate-800/30 border border-slate-800 rounded-2xl p-5 space-y-4">
+                        <span class="text-4xs font-bold px-2 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 uppercase tracking-widest flex items-center w-fit">
+                            <i class="fa-solid fa-heart mr-1.5"></i> Cardio (เน้นเผาผลาญไขมัน)
+                        </span>
+                        <div class="space-y-3">
+                            <label class="flex items-start space-x-3 p-3 bg-slate-800/50 rounded-xl cursor-pointer hover:bg-slate-800 transition-colors border border-slate-700/30">
+                                <input type="checkbox" id="pref-hiit" checked class="w-4.5 h-4.5 rounded text-emerald-500 bg-slate-900 border-slate-700 mt-0.5">
+                                <div>
+                                    <span class="block font-bold text-xs text-slate-200">HIIT - เบิร์นไขมันสปีด</span>
+                                    <span class="text-4xs text-slate-400 block mt-0.5">เผาผลาญสูงมาก ~ 550 kcal/ชม.</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start space-x-3 p-3 bg-slate-800/50 rounded-xl cursor-pointer hover:bg-slate-800 transition-colors border border-slate-700/30">
+                                <input type="checkbox" id="pref-run" checked class="w-4.5 h-4.5 rounded text-emerald-500 bg-slate-900 border-slate-700 mt-0.5">
+                                <div>
+                                    <span class="block font-bold text-xs text-slate-200">วิ่งเหยาะสลับเดิน (Running)</span>
+                                    <span class="text-4xs text-slate-400 block mt-0.5">กระตุ้นปอดหัวใจดี ~ 480 kcal/ชม.</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start space-x-3 p-3 bg-slate-800/50 rounded-xl cursor-pointer hover:bg-slate-800 transition-colors border border-slate-700/30">
+                                <input type="checkbox" id="pref-rope" class="w-4.5 h-4.5 rounded text-emerald-500 bg-slate-900 border-slate-700 mt-0.5">
+                                <div>
+                                    <span class="block font-bold text-xs text-slate-200">กระโดดเชือกหุ่นเพรียว</span>
+                                    <span class="text-4xs text-slate-400 block mt-0.5">พัฒนาความคล่องตัว ~ 620 kcal/ชม.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Strength Training -->
+                    <div class="bg-slate-800/30 border border-slate-800 rounded-2xl p-5 space-y-4">
+                        <span class="text-4xs font-bold px-2 py-1 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-widest flex items-center w-fit">
+                            <i class="fa-solid fa-dumbbell mr-1.5"></i> Strength (กระชับและสร้างกล้ามเนื้อ)
+                        </span>
+                        <div class="space-y-3">
+                            <label class="flex items-start space-x-3 p-3 bg-slate-800/50 rounded-xl cursor-pointer hover:bg-slate-800 transition-colors border border-slate-700/30">
+                                <input type="checkbox" id="pref-bodyweight" checked class="w-4.5 h-4.5 rounded text-emerald-500 bg-slate-900 border-slate-700 mt-0.5">
+                                <div>
+                                    <span class="block font-bold text-xs text-slate-200">บอดี้เวทสร้างโครงหุ่น (Bodyweight)</span>
+                                    <span class="text-4xs text-slate-400 block mt-0.5">ไม่ต้องใช้อุปกรณ์ ~ 350 kcal/ชม.</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start space-x-3 p-3 bg-slate-800/50 rounded-xl cursor-pointer hover:bg-slate-800 transition-colors border border-slate-700/30">
+                                <input type="checkbox" id="pref-resistance" class="w-4.5 h-4.5 rounded text-emerald-500 bg-slate-900 border-slate-700 mt-0.5">
+                                <div>
+                                    <span class="block font-bold text-xs text-slate-200">ยางยืดแรงต้านสัดส่วน</span>
+                                    <span class="text-4xs text-slate-400 block mt-0.5">กระตุ้นความแข็งแรงกล้ามเนื้อ ~ 320 kcal/ชม.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Low Impact / Recovery -->
+                    <div class="bg-slate-800/30 border border-slate-800 rounded-2xl p-5 space-y-4">
+                        <span class="text-4xs font-bold px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-widest flex items-center w-fit">
+                            <i class="fa-solid fa-seedling mr-1.5"></i> Low Impact (ถนอมข้อต่อ-ฟื้นฟู)
+                        </span>
+                        <div class="space-y-3">
+                            <label class="flex items-start space-x-3 p-3 bg-slate-800/50 rounded-xl cursor-pointer hover:bg-slate-800 transition-colors border border-slate-700/30">
+                                <input type="checkbox" id="pref-walk" checked class="w-4.5 h-4.5 rounded text-emerald-500 bg-slate-900 border-slate-700 mt-0.5">
+                                <div>
+                                    <span class="block font-bold text-xs text-slate-200">เดินเร็วโซน 2 เพื่อสุขภาพ</span>
+                                    <span class="text-4xs text-slate-400 block mt-0.5">ลดอาการปวดเข่าและถนอมข้อต่อ ~ 240 kcal/ชม.</span>
+                                </div>
+                            </label>
+                            <label class="flex items-start space-x-3 p-3 bg-slate-800/50 rounded-xl cursor-pointer hover:bg-slate-800 transition-colors border border-slate-700/30">
+                                <input type="checkbox" id="pref-yoga" class="w-4.5 h-4.5 rounded text-emerald-500 bg-slate-900 border-slate-700 mt-0.5">
+                                <div>
+                                    <span class="block font-bold text-xs text-slate-200">โยคะจัดสมดุลร่างและแกนกลาง</span>
+                                    <span class="text-4xs text-slate-400 block mt-0.5">ยืดกล้ามเนื้อและระบบลมหายใจ ~ 180 kcal/ชม.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STAGE 3: INTERACTIVE CALENDAR & WORKOUT SYSTEM -->
+        <section id="section-calendar" class="section-content space-y-6 hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left Day Grid Selector (7 Days) -->
+                <div class="lg:col-span-4 space-y-3" id="calendar-day-sidebar">
+                    <!-- Javascript will inject 7 day cards here -->
+                </div>
+
+                <!-- Right Detailed Workout & Active Player -->
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl">
+                        
+                        <!-- Header showing current day program -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 mb-5 gap-3">
+                            <div>
+                                <span class="text-3xs font-bold text-emerald-400 uppercase tracking-widest" id="cal-day-subtitle">DAY 1</span>
+                                <h3 class="text-lg font-bold text-white" id="cal-day-title">โปรแกรมฝึกกล้ามเนื้อและคาร์ดิโอ</h3>
+                            </div>
+                            <div class="text-left sm:text-right">
+                                <span class="text-4xs font-bold text-slate-400 uppercase block">เป้าหมายเผาผลาญ</span>
+                                <span class="text-base font-extrabold text-emerald-400" id="cal-day-burn">~ 513 kcal</span>
+                            </div>
+                        </div>
+
+                        <!-- Main Split: Exercise list & Visual Guide -->
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-6">
+                            
+                            <!-- Left: Workout List -->
+                            <div class="md:col-span-7 space-y-3" id="cal-exercises-list">
+                                <!-- JS will inject list of exercises -->
+                            </div>
+
+                            <!-- Right: VISUAL FORM GUIDE & SVG STICKMAN -->
+                            <div class="md:col-span-5 bg-slate-800/30 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between">
+                                <div>
+                                    <span class="text-4xs font-bold text-emerald-400 uppercase tracking-widest block mb-2"><i class="fa-solid fa-person-running mr-1"></i> วิธีจัดระเบียบสรีระร่างกาย</span>
+                                    <div class="bg-slate-950/60 rounded-xl p-4 flex items-center justify-center border border-slate-800 min-h-[160px]" id="visual-guide-animation">
+                                        <!-- Animated Stickman SVG will be injected here -->
+                                    </div>
+                                    <div class="mt-4 space-y-2">
+                                        <h4 class="text-xs font-bold text-white" id="visual-guide-name">ท่าทางฝึก</h4>
+                                        <p class="text-3xs text-slate-300 leading-relaxed" id="visual-guide-steps">ขั้นตอนการทำ</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-800/80 grid grid-cols-2 gap-2 text-4xs">
+                                    <div class="bg-slate-900/60 p-2 rounded-lg">
+                                        <span class="text-slate-400 block font-semibold mb-0.5">กล้ามเนื้อที่ได้:</span>
+                                        <span class="text-emerald-400 font-bold" id="visual-guide-muscles">-</span>
+                                    </div>
+                                    <div class="bg-slate-900/60 p-2 rounded-lg">
+                                        <span class="text-slate-400 block font-semibold mb-0.5">การหายใจ:</span>
+                                        <span class="text-teal-400 font-bold" id="visual-guide-breathing">-</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- LIVE WORKOUT TIMER SYSTEM -->
+                        <div class="bg-slate-800/40 border border-slate-800 rounded-2xl p-6 relative overflow-hidden">
+                            <div class="absolute -right-6 -bottom-6 opacity-5 text-8xl">
+                                <i class="fa-solid fa-stopwatch"></i>
+                            </div>
+
+                            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                                <div class="text-center md:text-left">
+                                    <span class="text-4xs font-bold text-emerald-400 uppercase tracking-widest">ระบบจับเวลาระหว่างออกกำลังกาย</span>
+                                    <h4 class="text-base font-extrabold text-white mt-0.5" id="timer-exercise-name">กดเริ่มเล่นเพื่อเริ่มรอบการฝึก</h4>
+                                    <p class="text-xs text-slate-400 mt-1" id="timer-round-status">ท่าฝึกที่ 1/5 | เซตที่ 1/3</p>
+                                </div>
+
+                                <!-- Circular Timer Face Display -->
+                                <div class="flex items-center space-x-4">
+                                    <div class="relative w-24 h-24 flex items-center justify-center rounded-full border-4 border-slate-700 bg-slate-900/80">
+                                        <div class="absolute inset-0 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin duration-1000 hidden" id="timer-spinner"></div>
+                                        <span class="text-2xl font-black text-white" id="timer-countdown">45</span>
+                                        <span class="text-4xs text-slate-500 absolute bottom-3">วินาที</span>
+                                    </div>
+
+                                    <!-- Controller Buttons -->
+                                    <div class="flex flex-col space-y-2">
+                                        <button onclick="toggleWorkoutTimer()" id="btn-timer-control" class="px-4 py-2 bg-emerald-500 text-slate-900 font-extrabold text-xs rounded-xl hover:bg-emerald-600 transition-all flex items-center justify-center space-x-1.5 shadow-sm">
+                                            <i class="fa-solid fa-play"></i>
+                                            <span>เริ่มรอบการฝึก</span>
+                                        </button>
+                                        <button onclick="resetWorkoutTimer()" class="px-4 py-1.5 bg-slate-800 text-slate-400 font-bold text-2xs rounded-xl hover:bg-slate-700 transition-all border border-slate-700/60 text-center">
+                                            <i class="fa-solid fa-rotate-left mr-1"></i> รีเซ็ต
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mark day as completed -->
+                        <div class="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-5 border-t border-slate-800">
+                            <p class="text-2xs text-slate-400">เมื่อออกกำลังกายเสร็จสมบูรณ์ กดปุ่มเพื่อเพิ่มแต้มแคลอรีสะสมเข้าระบบ</p>
+                            <button onclick="markCurrentDayCompleted()" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700/80 font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-2" id="btn-day-complete-marker">
+                                <i class="fa-regular fa-square-check"></i>
+                                <span>ทำเครื่องหมายเสร็จสิ้นแล้ววันนี้</span>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- STAGE 4: WEIGHT TRACKER & DYNAMIC GRAPH -->
+        <section id="section-tracker" class="section-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Weight Input Form Side -->
+                <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-5">
+                    <h2 class="text-base sm:text-lg font-extrabold text-white flex items-center">
+                        <i class="fa-solid fa-file-pen text-emerald-500 mr-2.5"></i> บันทึกน้ำหนักประจำวัน
+                    </h2>
+
+                    <form id="weight-log-form" onsubmit="addWeightLog(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-3xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">ระบุน้ำหนักตัววันนี้ (กก.)</label>
+                            <input type="number" step="0.1" id="log-weight-input" placeholder="เช่น 80.5" class="w-full bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-white font-semibold" required>
+                        </div>
+                        <div>
+                            <label class="block text-3xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">วันที่ทำการชั่งน้ำหนัก</label>
+                            <input type="date" id="log-date-input" class="w-full bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 text-white font-semibold" required>
+                        </div>
+
+                        <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-bold py-3 rounded-xl transition-all shadow-md shadow-emerald-500/10 flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>เพิ่มจุดบันทึกสถิติ</span>
+                        </button>
+                    </form>
+
+                    <button onclick="resetWeightLogs()" class="w-full py-2 bg-slate-800/40 text-slate-400 hover:text-rose-400 border border-slate-800/60 rounded-xl text-xs font-semibold transition-all">
+                        <i class="fa-solid fa-trash-can mr-1.5"></i> ล้างประวัติเพื่อเริ่มโปรแกรมใหม่
+                    </button>
+                </div>
+
+                <!-- Weight Progress Graph Side -->
+                <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-base sm:text-lg font-extrabold text-white flex items-center mb-1">
+                            <i class="fa-solid fa-chart-line text-emerald-400 mr-2.5"></i> กราฟแนวโน้มการลดน้ำหนักของคุณ
+                        </h2>
+                        <p class="text-xs text-slate-400 mb-6">กราฟวิเคราะห์เทียบเส้นความเร่งลดในอุดมคติ (Ideal) กับค่าจริงที่คุณบันทึกเข้ามาในระบบ</p>
+
+                        <!-- Canvas viewport -->
+                        <div class="bg-slate-950/80 rounded-2xl border border-slate-800 p-4 overflow-hidden">
+                            <canvas id="weightGraph" class="w-full h-64 md:h-80"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Graph Indicators -->
+                    <div class="flex flex-wrap items-center justify-center gap-6 mt-6 text-xs text-slate-400">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3.5 h-3.5 bg-emerald-500 rounded-full inline-block"></span>
+                            <span class="font-medium">เส้นน้ำหนักจริงที่บันทึก (Actual)</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3.5 h-3.5 bg-slate-600 rounded-full inline-block"></span>
+                            <span class="font-medium">แนวโน้มลดแบบอุดมคติ (Ideal Path)</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 text-slate-500 py-10 mt-12 border-t border-slate-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
+            <div class="flex flex-col sm:flex-row justify-between items-center border-b border-slate-900 pb-6 mb-6 gap-4">
+                <div>
+                    <div class="flex items-center justify-center sm:justify-start space-x-2 text-white mb-1.5">
+                        <i class="fa-solid fa-fire-flame-curved text-emerald-400 text-xl"></i>
+                        <span class="text-base font-black tracking-wide">FitBurner</span>
+                    </div>
+                    <p class="text-2xs text-slate-500">แอปวางแผนการออกกำลังกายประเมินผลเชิงพฤติกรรมและฟิสิกส์แคลอรีเพื่อสุขภาพของไทย</p>
+                </div>
+                <p class="text-3xs text-slate-500">เวอร์ชันระบบจำลองเชิงกายวิภาค v2.1</p>
+            </div>
+            <p class="text-3xs text-slate-600 text-center">คำแนะนำและเป้าหมายจากแอปพลิเคชันเป็นโปรแกรมเชิงวิเคราะห์ตามสูตรฟิสิกส์วิจัย ควรออกกำลังกายให้อยู่ในขอบเขตสุขภาพปลอดภัยของคุณเสมอ</p>
+        </div>
+    </footer>
+
+    <!-- JS CODE CONTROLLER ENGINE -->
+    <script>
+        // --- GLOBAL CONFIGURATION ---
+        const defaultWeeklyDaysTh = {
+            day1: "วันจันทร์", 
+            day2: "วันอังคาร", 
+            day3: "วันพุธ",
+            day4: "วันพฤหัสบดี", 
+            day5: "วันศุกร์", 
+            day6: "วันเสาร์", 
+            day7: "วันอาทิตย์"
+        };
+
+        // --- 1. WORKOUT EXERCISE DATABASE MATRIX ---
+        const workoutDatabase = {
+            hiit: {
+                title: "HIIT - เผาผลาญไขมันสูงสุดแบบสปีด",
+                burnRate: 550, // kcal/hr
+                exercises: [
+                    { 
+                        name: "Jumping Jacks (กระโดดตบสปีด)", 
+                        work: 45, 
+                        rest: 15, 
+                        reps: "3 เซต",
+                        guide: {
+                            muscles: "ร่างกายส่วนบน, ขา, คาร์ดิโอ",
+                            breathing: "หายใจเข้าเมื่อหุบแขน, หายใจออกเมื่อกางแขนโดด",
+                            steps: "1. ยืนตรง เท้าชิด แขนอยู่ข้างลำตัว<br>2. กระโดดแยกเท้าออกกว้างเท่าไหล่ พร้อมแกว่งมือประสานเหนือศีรษะ<br>3. กระโดดกลับสู่ท่าเริ่มต้น รักษาสปีดสม่ำเสมอเพื่อเผาผลาญไขมัน",
+                            svg: `<svg viewBox="0 0 100 100" class="w-32 h-32">
+                                    <circle cx="50" cy="20" r="8" fill="#10b981" />
+                                    <line x1="50" y1="28" x2="50" y2="55" stroke="#ffffff" stroke-width="4" />
+                                    <!-- Arms L -->
+                                    <g class="anim-jack-arm-l">
+                                        <line x1="45" y1="35" x2="25" y2="20" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+                                    </g>
+                                    <!-- Arms R -->
+                                    <g class="anim-jack-arm-r">
+                                        <line x1="55" y1="35" x2="75" y2="20" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+                                    </g>
+                                    <!-- Legs L -->
+                                    <g class="anim-jack-leg-l">
+                                        <line x1="47" y1="55" x2="35" y2="85" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+                                    </g>
+                                    <!-- Legs R -->
+                                    <g class="anim-jack-leg-r">
+                                        <line x1="53" y1="55" x2="65" y2="85" stroke="#ffffff" stroke-width="3" stroke-linecap="round" />
+                                    </g>
+                                  </svg>`
+                        }
+                    },
+                    { 
+                        name: "Mountain Climbers (ปีนเขากลางอากาศ)", 
+                        work: 45, 
+                        rest: 15, 
+                        reps: "3 เซต",
+                        guide: {
+                            muscles: "หน้าท้องส่วนล่าง, แกนกลาง, แขน",
+                            breathing: "หายใจสม่ำเสมอตามจังหวะซ้าย-ขวา",
+                            steps: "1. เริ่มในท่าเตรียมดันพื้น (Plank position)<br>2. ล็อกสะโพกให้ขนานกับพื้น เกร็งหน้าท้อง<br>3. สลับงอเข่าดึงสลับเข้าหาหน้าอกซ้ายและขวาอย่างรวดเร็วเหมือนปีนเขา",
+                            svg: `<svg viewBox="0 0 100 100" class="w-32 h-32">
+                                    <circle cx="30" cy="30" r="7" fill="#10b981" />
+                                    <line x1="30" y1="30" x2="65" y2="40" stroke="#ffffff" stroke-width="4" stroke-linecap="round" />
+                                    <!-- Supports Arms -->
+                                    <line x1="60" y1="40" x2="65" y2="75" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+                                    <line x1="32" y1="35" x2="35" y2="75" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+                                    <!-- Leg L (Climbing) -->
+                                    <g class="anim-climber-l">
+                                        <line x1="65" y1="40" x2="45" y2="50" stroke="#ffffff" stroke-width="3" />
+                                        <line x1="45" y1="50" x2="30" y2="70" stroke="#ffffff" stroke-width="3" />
+                                    </g>
+                                    <!-- Leg R (Back) -->
+                                    <g class="anim-climber-r">
+                                        <line x1="65" y1="40" x2="75" y2="55" stroke="#10b981" stroke-width="3" />
+                                        <line x1="75" y1="55" x2="85" y2="75" stroke="#10b981" stroke-width="3" />
+                                    </g>
+                                  </svg>`
+                        }
+                    },
+                    { 
+                        name: "High Knees (วิ่งเข่ายกสูงอยู่กับที่)", 
+                        work: 40, 
+                        rest: 20, 
+                        reps: "3 เซต",
+                        guide: {
+                            muscles: "ขาหนีบ, ขาหน้า, คาร์ดิโอ",
+                            breathing: "หายใจออกเร็วเมื่อยกเข่าสลับขึ้นมา",
+                            steps: "1. ยืนตรง ปล่อยตัวตามสบายแกว่งแขนช่วยยกตัว<br>2. วิ่งสลับเท้าอยู่กับที่ ยกหัวเข่าสูงพยายามทำมุม 90 องศากับสะโพก<br>3. รักษาระดับสปีดหน้าอกตั้งตรงไม่เอนตัวไปทางข้างหลัง",
+                            svg: `<svg viewBox="0 0 100 100" class="w-32 h-32">
+                                    <circle cx="50" cy="20" r="8" fill="#10b981" />
+                                    <line x1="50" y1="28" x2="52" y2="55" stroke="#ffffff" stroke-width="4" />
+                                    <!-- Arm Swing -->
+                                    <g class="anim-run-arm">
+                                        <line x1="50" y1="35" x2="35" y2="45" stroke="#10b981" stroke-width="3" />
+                                        <line x1="35" y1="45" x2="40" y2="60" stroke="#10b981" stroke-width="3" />
+                                    </g>
+                                    <!-- Leg High Knee L -->
+                                    <g class="anim-run-leg-l">
+                                        <line x1="52" y1="55" x2="35" y2="60" stroke="#ffffff" stroke-width="3" />
+                                        <line x1="35" y1="60" x2="38" y2="85" stroke="#ffffff" stroke-width="3" />
+                                    </g>
+                                    <!-- Leg High Knee R -->
+                                    <g class="anim-run-leg-r">
+                                        <line x1="52" y1="55" x2="65" y2="75" stroke="#10b981" stroke-width="3" />
+                                        <line x1="65" y1="75" x2="60" y2="90" stroke="#10b981" stroke-width="3" />
+                                    </g>
+                                  </svg>`
+                        }
+                    },
+                    { 
+                        name: "Burpees (พุ่งหลังและกระโดด)", 
+                        work: 30, 
+                        rest: 30, 
+                        reps: "3 เซต",
+                        guide: {
+                            muscles: "กล้ามเนื้อทั่วร่าง, คาร์ดิโอระเบิดพลัง",
+                            breathing: "หายใจเข้าเมื่อพุ่งตัวลง, หายใจออกตอนดีดตัวโดดขึ้นฟ้า",
+                            steps: "1. เริ่มจากยืนตรง ย่อตัวลงคุกเข่าพุ่งเท้าสองข้างไปด้านหลัง<br>2. ดีดตัวกลับมายืนย่อตัวอย่างรวดเร็ว<br>3. กระโดดชูมือขึ้นฟ้าสุดพลังแล้วกลับมาเริ่มท่าใหม่",
+                            svg: `<svg viewBox="0 0 100 100" class="w-32 h-32">
+                                    <g class="anim-squat">
+                                        <circle cx="50" cy="25" r="7" fill="#10b981" />
+                                        <line x1="50" y1="32" x2="50" y2="55" stroke="#ffffff" stroke-width="4" />
+                                        <line x1="50" y1="55" x2="40" y2="70" stroke="#10b981" stroke-width="3" />
+                                        <line x1="40" y1="70" x2="50" y2="85" stroke="#10b981" stroke-width="3" />
+                                        <line x1="50" y1="35" x2="35" y2="45" stroke="#ffffff" stroke-width="3" />
+                                    </g>
+                                  </svg>`
+                        }
+                    },
+                    { 
+                        name: "Plank Jacks (แพลงก์แยกและหุบขา)", 
+                        work: 45, 
+                        rest: 15, 
+                        reps: "3 เซต",
+                        guide: {
+                            muscles: "แกนกลางหน้าท้อง, แขน, ก้น",
+                            breathing: "หายใจเข้าหุบขา, หายใจออกโดดแยกขา",
+                            steps: "1. ยืนในท่า High Plank มือยันพื้นตรงกับหัวไหล่<br>2. เกร็งหน้าท้องส่วนแกนกลางลำตัวให้นิ่ง<br>3. กระโดดแยกเท้าออกกว้างแล้วโดดหุบขากลับอย่างรวดเร็ว",
+                            svg: `<svg viewBox="0 0 100 100" class="w-32 h-32">
+                                    <circle cx="30" cy="35" r="7" fill="#10b981" />
+                                    <line x1="30" y1="35" x2="70" y2="42" stroke="#ffffff" stroke-width="4" />
+                                    <line x1="30" y1="35" x2="32" y2="75" stroke="#10b981" stroke-width="3" />
+                                    <!-- Core tension pulsing red circle -->
+                                    <circle cx="50" cy="38" r="6" fill="#ef4444" class="anim-pulse" />
+                                    <!-- Legs jumping back -->
+                                    <g class="anim-climber-l">
+                                        <line x1="70" y1="42" x2="85" y2="60" stroke="#ffffff" stroke-width="3" />
+                                        <line x1="85" y1="60" x2="90" y2="80" stroke="#ffffff" stroke-width="3" />
+                                    </g>
+                                  </svg>`
+                        }
+                    }
+                ]
+            },
+            run: {
+                title: "วิ่งเหยาะสลับเดิน กระตุ้นหัวใจโซน 2",
+                burnRate: 480,
+                exercises: [
+                    { 
+                        name: "Warm-up (เดินวอร์มอัพยืดตัวสปีด)", 
+                        work: 60, 
+                        rest: 0, 
+                        reps: "5 นาที",
+                        guide: {
+                            muscles: "ข้อต่อ, ยืดกล้ามเนื้อทั่วร่างกาย",
+                            breathing: "หายใจเข้าลึก ๆ ยาว ๆ ผ่อนคลายกล้ามเนื้อ",
+                            steps: "1. เดินย่ำเท้าอยู่กับที่ช้า ๆ<br>2. หมุนข้อศอก สะโพก ข้อเท้า เพื่อกระตุ้นน้ำหล่อเลี้ยงข้อต่อ<br>3. เตรียมปอดและหัวใจเพื่อการออกกำลังกายสเต็ปถัดไป",
+                            svg: `<svg viewBox="0 0 100 100" class="w-32 h-32">
+                                    <circle cx="50" cy="20" r="8" fill="#10b981" />
+                                    <line x1="50" y1="28" x2="50" y2="55" stroke="#ffffff" stroke-width="4" />
+                                    <line x1="50" y1="55" x2="42" y2="85" stroke="#10b981" stroke-width="3" />
+                                    <line x1="50" y1="55" x2="58" y2="85" stroke="#10b981" stroke-width="3" />
+                                  </svg>`
+                        }
+                    },
+                    { 
+                        name: "Jogging (วิ่งเหยาะจ๊อกกิ้งคุมชีพจร)", 
+                        work: 60, 
+                        rest: 0, 
+                        reps: "15 นาที",
+                        guide: {
+                            muscles: "กล้ามเนื้อน่อง, ต้นขาด้านหลัง, หัวใจ",
+                            breathing: "หายใจจังหวะ 2 เข้า 2 ออก (สมาธิมั่นคง)",
+                            steps: "1. วิ่งเหยาะช้า ๆ ทรงตัวให้มั่นคง<br>2. ลงน้ำหนักผ่านหน้าเท้าส่วนกลาง ปล่อยแขนแกว่งตามธรรมชาติ<br>3. รักษาระดับชีพจรให้อยู่ในโซนเผาผชาญไขมัน (Zone 2)",
+                            svg: `<svg viewBox="0 0 100 100" class="w-32 h-32">
+                                    <circle cx="50" cy="20" r="8" fill="#10b981" />
+                                    <line x1="50" y1="28" x2="52" y2="55" stroke="#ffffff" stroke-width="4" />
+                                    <g class="anim-run-arm">
+                                        <line x1="50" y1="35" x2="35" y2="45" stroke="#10b981" stroke-width="3" />
+                                        <line x1="35" y1="45" x2="40" y2="60" stroke="#10b981" stroke-width="3" />
+                                    </g>
+                                    <g class="anim-run-leg-l">
+                                        <line x1="52" y1="55" x2="35" y2="60" stroke="#ffffff" stroke-width="3" />
+                                    </g>
+                                  </svg>`
+                        }
+                    }
+                ]
+            },
+            bodyweight: {
+                title: "บอดี้เวทสร้างโครงกล้ามเนื้อกระชับสัดส่วน",
+                burnRate: 350,
+                exercises: [
+                    { 
+                        name: "Bodyweight Squats (ลุกนั่งลดสะโพก)", 
+                        work: 45, 
+                        rest: 15, 
+                        reps: "4 เซต",
+                        guide: {
+                            muscles: "ต้นขาหน้า, บั้นท้ายสะโพก",
+                            breathing: "หายใจเข้าเมื่อย่อก้นลง, หายใจออกยันส้นเท้าดันยืนตรง",
+                            steps: "1. ยืนกางเท้ากว้างเท่าช่วงหัวไหล่ ปลายเท้าเปิดเล็กน้อย<br>2. เกร็งหน้าท้อง ยื่นก้นไปข้างหลัง ย่อเข่าลงเหมือนนั่งเก้าอี้<br>3. ล็อกหลังให้ตรง เข่าไม่เลยปลายเท้า ดันส้นเท้าส่งตัวกลับขึ้นไป",
+                            svg: `<svg viewBox="0 0 100 100" class="w-32 h-32">
+                                    <g class="anim-squat">
+                                        <circle cx="50" cy="20" r="8" fill="#10b981" />
+                                        <line x1="50" y1="28" x2="50" y2="55" stroke="#ffffff" stroke-width="4" />
+                                        <!-- Hips bent squat -->
+                                        <line x1="50" y1="55" x2="35" y2="68" stroke="#10b981" stroke-width="3" />
+                                        <line x1="35" y1="68" x2="45" y2="85" stroke="#10b981" stroke-width="3" />
+                                        <!-- Hands balanced forward -->
+                                        <line x1="50" y1="35" x2="25" y2="35" stroke="#ffffff" stroke-width="3" />
+                                    </g>
+                                  </svg>`
+                        }
+                    },
+                    { 
+                        name: "Push-ups (วิดพื้นสร้างกำลังอกแขน)", 
+                        work: 45, 
+                        rest: 15, 
+                        reps: "4 เซต",
+                        guide: {
+                            muscles: "หน้าอก, หัวไหล่ด้านหน้า, ท้องแขน",
+                            breathing: "หายใจเข้าขณะพับข้อศอกหย่อนตัวลง, หายใจออกตอนออกแรงดันขึ้น",
+                            steps: "1. คว่ำตัว มือยันพื้นกว้างกว่าช่วงไหล่เล็กน้อย หลังล็อกขนานพื้น<br>2. หย่อนตัวลงช้า ๆ บีบข้อศอกเฉียง 45 องศาเข้าหาหลัง<br>3. เกร็งหน้าอก ดันตัวกลับขึ้นล็อกข้อศอกเกือบตึง",
+                            svg: `<svg viewBox="0 0 100 100" class="w-32 h-32">
+                                    <g class="anim-pushup">
+                                        <circle cx="30" cy="30" r="7" fill="#10b981" />
+                                        <line x1="30" y1="30" x2="80" y2="30" stroke="#ffffff" stroke-width="4" />
+                                        <!-- Supports Arms -->
+                                        <line x1="35" y1="30" x2="35" y2="65" stroke="#10b981" stroke-width="3" />
+                                        <line x1="80" y1="30" x2="80" y2="65" stroke="#10b981" stroke-width="3" />
+                                    </g>
+                                  </svg>`
+                        }
+                    }
+                ]
+            }
+        };
+
+        // --- 2. GLOBAL APP STATE VARIABLES ---
+        let userStats = {
+            weight: 82,
+            targetWeight: 72,
+            days: 60,
+            fitnessLevel: "beginner",
+            dailyDeficitTarget: 1283,
+            dailyActiveBurnTarget: 513,
+            dailyDietTarget: 770
+        };
+
+        let activeSection = "onboarding"; // Default entry tab
+        let activePlannerDay = "day1";
+
+        let generatedWeeklyProgram = {
+            day1: { category: "hiit", isRest: false, isCompleted: false },
+            day2: { category: "bodyweight", isRest: false, isCompleted: false },
+            day3: { category: "", isRest: true, isCompleted: false },
+            day4: { category: "run", isRest: false, isCompleted: false },
+            day5: { category: "bodyweight", isRest: false, isCompleted: false },
+            day6: { category: "hiit", isRest: false, isCompleted: false },
+            day7: { category: "", isRest: true, isCompleted: false }
+        };
+
+        let timerInterval = null;
+        let timerIsPlaying = false;
+        let timerSecondsLeft = 45;
+        let currentExerciseIndex = 0;
+        let isRestPeriod = false;
+
+        let weightLogHistory = [
+            { date: "2026-05-01", weight: 82.0 },
+            { date: "2026-05-07", weight: 81.1 },
+            { date: "2026-05-14", weight: 80.2 },
+            { date: "2026-05-21", weight: 79.5 }
+        ];
+
+        // --- 3. APPLICATION STARTUP ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('log-date-input');
+            if(dateInput) dateInput.value = today;
+
+            // Start up core values
+            calculateDeficitGoalData();
+            renderDaysSidebar();
+            updateDetailedWorkoutUI();
+            drawWeightGraph();
+
+            // Set up resize handler for responsive canvas scaling
+            window.addEventListener('resize', () => {
+                if (activeSection === 'tracker') {
+                    drawWeightGraph();
+                }
+            });
+        });
+
+        // --- 4. SECTION ROUTING TABS ---
+        function changeSection(sectionId) {
+            activeSection = sectionId;
+
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(element => {
+                element.classList.add('hidden');
+            });
+            // Show target section
+            const targetSec = document.getElementById(`section-${sectionId}`);
+            if(targetSec) targetSec.classList.remove('hidden');
+
+            // Update Tab Indicators (Desktop)
+            document.querySelectorAll('[id^="btn-tab-"]').forEach(btn => {
+                btn.className = "px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition-all";
+            });
+            const activeDeskBtn = document.getElementById(`btn-tab-${sectionId}`);
+            if (activeDeskBtn) {
+                activeDeskBtn.className = "px-4 py-2 rounded-xl text-xs font-semibold text-emerald-400 bg-slate-800 border border-slate-700/60 transition-all";
+            }
+
+            // Update Navigation Menu (Mobile)
+            document.querySelectorAll('[id^="mob-btn-"]').forEach(btn => {
+                btn.className = "flex flex-col items-center space-y-1 text-slate-500";
+            });
+            const activeMobBtn = document.getElementById(`mob-btn-${sectionId}`);
+            if (activeMobBtn) {
+                activeMobBtn.className = "flex flex-col items-center space-y-1 text-emerald-400";
+            }
+
+            if (sectionId === 'tracker') {
+                setTimeout(drawWeightGraph, 100);
+            }
+        }
+
+        // --- 5. ONBOARDING & CALCULATIONS LOGIC ---
+        function handleCalculateGoals(event) {
+            if (event) event.preventDefault();
+
+            userStats.weight = parseFloat(document.getElementById('input-weight').value);
+            userStats.targetWeight = parseFloat(document.getElementById('input-target-weight').value);
+            userStats.days = parseInt(document.getElementById('input-duration-days').value);
+            userStats.fitnessLevel = document.getElementById('input-fitness-level').value;
+
+            if (userStats.weight <= userStats.targetWeight) {
+                showGlobalAlert("น้ำหนักเป้าหมายต้องน้อยกว่าน้ำหนักปัจจุบัน กรุณาระบุข้อมูลใหม่อีกครั้งเพื่อประโยชน์ของคุณ", "warning");
+                return;
+            }
+
+            calculateDeficitGoalData();
+            generateCustomWorkoutPlan();
+            showGlobalAlert(`บันทึกเป้าหมายสำเร็จ! ไกด์ไลน์คำนวณแคลอรีติดลบปรับแต่งเพื่อคุณพร้อมใช้งานแล้ว`, "success");
+            
+            setTimeout(() => {
+                changeSection('generator');
+            }, 1000);
+        }
+
+        function calculateDeficitGoalData() {
+            const lossTotal = userStats.weight - userStats.targetWeight;
+            const deficitTotal = lossTotal * 7700;
+            const deficitDaily = Math.round(deficitTotal / userStats.days);
+
+            const splitDiet = Math.round(deficitDaily * 0.60);
+            const splitWorkout = Math.round(deficitDaily * 0.40);
+
+            userStats.dailyDeficitTarget = deficitDaily;
+            userStats.dailyActiveBurnTarget = splitWorkout;
+            userStats.dailyDietTarget = splitDiet;
+
+            const weeklyLossRate = (lossTotal / (userStats.days / 7));
+            
+            let ratingText = ""; let barWidth = "100%";
+            let ratingColorClass = "text-emerald-400"; let barColorClass = "bg-emerald-500";
+            let descText = "";
+
+            if (weeklyLossRate <= 0.5) {
+                ratingText = "ปลอดภัยสูงมาก อัตราลดแบบค่อยเป็นค่อยไป (Gentle & Sustainable)";
+                barWidth = "100%"; ratingColorClass = "text-teal-400"; barColorClass = "bg-teal-500";
+                descText = "อัตราการลดกำลังดี สุขภาพร่างกายไม่เครียด เหมาะสมสำหรับผู้ต้องการสลัดไขมันแบบระยะยาว";
+            } else if (weeklyLossRate <= 1.0) {
+                ratingText = "สัดส่วนดีเยี่ยม ปลอดภัยและรวดเร็ว (Optimized Loss)";
+                barWidth = "75%"; ratingColorClass = "text-emerald-400"; barColorClass = "bg-emerald-500";
+                descText = "สัดส่วนลดเหมาะสมที่สุด เห็นผลได้รวดเร็ว ชัดเจน มีความสม่ำเสมอในผลลัพธ์สูง";
+            } else if (weeklyLossRate <= 1.5) {
+                ratingText = "เข้มข้นสูงมาก เหนื่อยกว่าปกติ (Challenging)";
+                barWidth = "50%"; ratingColorClass = "text-amber-400"; barColorClass = "bg-amber-500";
+                descText = "ค่อนข้างตึงตัวและหนักหน่วง ต้องอาศัยการคุมอาหารอย่างเฉียบขาดร่วมกับการขยับร่างกาย ห้ามอดอาหาร!";
+            } else {
+                ratingText = "อันตรายเกินไป เสี่ยงต่อโยโย่เอฟเฟกต์สูงมาก (Highly Aggressive)";
+                barWidth = "25%"; ratingColorClass = "text-rose-400"; barColorClass = "bg-rose-500";
+                descText = "อัตราลดเร็วเกินสรีรวิทยาปกติ เสี่ยงต่อโยโย่เอฟเฟกต์สูงมาก แนะนำให้ขยายกรอบเวลากลุ่มเป้าหมายเพิ่มขึ้น";
+            }
+
+            const lossText = document.getElementById('stat-loss-total');
+            if(lossText) lossText.innerHTML = `${lossTotal.toFixed(1)} <span class="text-xs font-medium">กก.</span>`;
+            
+            const defText = document.getElementById('stat-deficit-total');
+            if(defText) defText.innerHTML = `${deficitTotal.toLocaleString()} <span class="text-xs font-medium">kcal</span>`;
+            
+            const defDailyText = document.getElementById('stat-deficit-daily');
+            if(defDailyText) defDailyText.innerHTML = `${deficitDaily.toLocaleString()} <span class="text-xs font-medium">kcal</span>`;
+            
+            const featRating = document.getElementById('stat-feasibility-rating');
+            if(featRating) {
+                featRating.className = `text-xs font-extrabold ${ratingColorClass}`;
+                featRating.textContent = ratingText;
+            }
+            
+            const pBar = document.getElementById('stat-feasibility-bar');
+            if(pBar) {
+                pBar.className = `h-full rounded-full transition-all duration-500 ${barColorClass}`;
+                pBar.style.width = barWidth;
+            }
+            
+            const featDesc = document.getElementById('stat-feasibility-desc');
+            if(featDesc) featDesc.textContent = descText;
+
+            const splitDietText = document.getElementById('stat-split-diet');
+            if(splitDietText) splitDietText.innerHTML = `${splitDiet.toLocaleString()} <span class="text-2xs font-normal">kcal / วัน</span>`;
+            
+            const splitWorkoutText = document.getElementById('stat-split-workout');
+            if(splitWorkoutText) splitWorkoutText.innerHTML = `${splitWorkout.toLocaleString()} <span class="text-2xs font-normal">kcal / วัน</span>`;
+
+            // Update Header progress
+            const maxLogged = weightLogHistory[0] ? weightLogHistory[0].weight : userStats.weight;
+            const minLogged = weightLogHistory.length > 0 ? weightLogHistory[weightLogHistory.length - 1].weight : userStats.weight;
+            const lostFar = Math.max(0, maxLogged - minLogged).toFixed(1);
+            document.getElementById('header-progress-label').textContent = `ลดได้แล้ว: ${lostFar} กก.`;
+        }
+
+        // --- 6. WORKOUT GENERATION ENGINE ---
+        function generateCustomWorkoutPlan() {
+            const prefHiit = document.getElementById('pref-hiit').checked;
+            const prefRun = document.getElementById('pref-run').checked;
+            const prefRope = document.getElementById('pref-rope').checked;
+            const prefBody = document.getElementById('pref-bodyweight').checked;
+            const prefResist = document.getElementById('pref-resistance').checked;
+            const prefWalk = document.getElementById('pref-walk').checked;
+            const prefYoga = document.getElementById('pref-yoga').checked;
+
+            let activePool = [];
+            if (prefHiit) activePool.push("hiit");
+            if (prefRun) activePool.push("run");
+            if (prefRope) activePool.push("rope");
+            if (prefBody) activePool.push("bodyweight");
+            if (prefResist) activePool.push("resistance");
+            if (prefWalk) activePool.push("walk");
+            if (prefYoga) activePool.push("yoga");
+
+            if (activePool.length === 0) {
+                activePool = ["bodyweight", "walk"];
+                document.getElementById('pref-bodyweight').checked = true;
+                document.getElementById('pref-walk').checked = true;
+            }
+
+            const daysOrder = ["day1", "day2", "day3", "day4", "day5", "day6", "day7"];
+            const restDays = ["day3", "day7"];
+
+            let poolIndex = 0;
+            daysOrder.forEach(day => {
+                if (restDays.includes(day)) {
+                    generatedWeeklyProgram[day] = { category: "", isRest: true, isCompleted: false };
+                } else {
+                    const workoutType = activePool[poolIndex % activePool.length];
+                    generatedWeeklyProgram[day] = { category: workoutType, isRest: false, isCompleted: false };
+                    poolIndex++;
+                }
+            });
+
+            renderDaysSidebar();
+            updateDetailedWorkoutUI();
+            showGlobalAlert("ระบบจัดตารางโปรแกรมออกกำลังกาย 7 วันให้เข้ากับตัวเลือกและเป้าหมายเรียบร้อยแล้ว!", "success");
+
+            setTimeout(() => {
+                changeSection('calendar');
+            }, 800);
+        }
+
+        // --- 7. WORKOUT CALENDAR & SIDEBARS ---
+        function renderDaysSidebar() {
+            const sidebar = document.getElementById('calendar-day-sidebar');
+            if(!sidebar) return;
+            sidebar.innerHTML = "";
+
+            Object.keys(defaultWeeklyDaysTh).forEach(dayId => {
+                const dayData = generatedWeeklyProgram[dayId];
+                const isActive = (dayId === activePlannerDay);
+                
+                let iconHtml = "";
+                let subTitle = "พักผ่อนร่าง";
+                let badgeClass = "bg-slate-800 text-slate-400";
+                let cardClass = isActive ? "border-emerald-500 bg-slate-800/80 shadow-md" : "border-slate-800/60 bg-slate-900";
+
+                if (dayData.isRest) {
+                    iconHtml = '<i class="fa-solid fa-mug-hot text-amber-400"></i>';
+                    subTitle = "วันพักฟื้นกล้ามเนื้อ (Rest Day)";
+                    badgeClass = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                } else {
+                    iconHtml = '<i class="fa-solid fa-dumbbell text-emerald-400 animate-pulse"></i>';
+                    const activeType = workoutDatabase[dayData.category];
+                    subTitle = activeType ? activeType.title : "ออกกำลังกายสรีระ";
+                    badgeClass = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                }
+
+                if (dayData.isCompleted) {
+                    badgeClass = "bg-sky-500/10 text-sky-400 border border-sky-500/20";
+                    subTitle += " (สำเร็จแล้ว!)";
+                }
+
+                const dayCard = document.createElement('button');
+                dayCard.className = `w-full text-left p-4 rounded-2xl border transition-all flex items-center justify-between group cursor-pointer ${cardClass}`;
+                dayCard.setAttribute('onclick', `selectCalendarDay('${dayId}')`);
+                dayCard.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-slate-800 border border-slate-700/50 rounded-xl flex items-center justify-center text-lg shrink-0 group-hover:scale-105 transition-all">
+                            ${dayData.isCompleted ? '<i class="fa-solid fa-circle-check text-sky-400"></i>' : iconHtml}
+                        </div>
+                        <div>
+                            <span class="text-3xs font-extrabold text-slate-400 tracking-widest block uppercase">${dayId.toUpperCase()}</span>
+                            <h4 class="font-bold text-sm text-white">${defaultWeeklyDaysTh[dayId]}</h4>
+                            <p class="text-3xs text-slate-500 mt-0.5 max-w-xs line-clamp-1">${subTitle}</p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="text-4xs font-bold px-2 py-0.5 rounded ${badgeClass}">
+                            ${dayData.isRest ? 'Rest' : dayData.isCompleted ? 'Done' : 'Active'}
+                        </span>
+                    </div>
+                `;
+                sidebar.appendChild(dayCard);
+            });
+        }
+
+        function selectCalendarDay(dayId) {
+            activePlannerDay = dayId;
+            renderDaysSidebar();
+            updateDetailedWorkoutUI();
+            resetWorkoutTimer();
+        }
+
+        function updateDetailedWorkoutUI() {
+            const dayData = generatedWeeklyProgram[activePlannerDay];
+            
+            document.getElementById('cal-day-subtitle').textContent = activePlannerDay.toUpperCase();
+            document.getElementById('cal-day-title').textContent = `ตารางฝึกซ้อมประจำ${defaultWeeklyDaysTh[activePlannerDay]}`;
+
+            const listContainer = document.getElementById('cal-exercises-list');
+            if(!listContainer) return;
+            listContainer.innerHTML = "";
+
+            const completeBtn = document.getElementById('btn-day-complete-marker');
+            if (dayData.isCompleted) {
+                if(completeBtn) {
+                    completeBtn.className = "px-5 py-3 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 border border-sky-500/30 font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-2";
+                    completeBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> <span>เสร็จสิ้นเป้าหมายแล้ว! (แตะเพื่อกดยกเลิก)</span>';
+                }
+            } else {
+                if(completeBtn) {
+                    completeBtn.className = "px-5 py-3 bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700/80 font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-2";
+                    completeBtn.innerHTML = '<i class="fa-regular fa-square-check"></i> <span>ทำเครื่องหมายเสร็จสิ้นแล้ววันนี้</span>';
+                }
+            }
+
+            if (dayData.isRest) {
+                document.getElementById('cal-day-burn').innerHTML = "0 <span class='text-xs font-normal'>kcal</span>";
+                listContainer.innerHTML = `
+                    <div class="bg-slate-800/20 border border-dashed border-slate-800 p-8 rounded-2xl text-center space-y-2">
+                        <i class="fa-solid fa-couch text-amber-400 text-4xl mb-2 block"></i>
+                        <h4 class="font-extrabold text-sm text-white">วันนี้คือวันหยุดพักผ่อนและฟื้นฟูร่างกาย!</h4>
+                        <p class="text-xs text-slate-400 max-w-md mx-auto">
+                            การพักผ่อน (Rest Day) มีความสำคัญมาก เพื่อให้ร่างกายและกล้ามเนื้อได้ฟื้นฟูซ่อมแซมส่วนที่สึกหรอ ดื่มน้ำให้เพียงพอและงดกิจกรรมหนักหน่วงครับ
+                        </p>
+                    </div>
+                `;
+                document.getElementById('timer-exercise-name').textContent = "วันนี้ไม่มีตารางการฝึกซ้อม";
+                document.getElementById('timer-round-status').textContent = "พักผ่อนเต็มกำลัง";
+                document.getElementById('timer-countdown').textContent = "Rest";
+                document.getElementById('btn-timer-control').classList.add('pointer-events-none', 'opacity-50');
+
+                // Clear visual guides
+                document.getElementById('visual-guide-animation').innerHTML = '<i class="fa-solid fa-couch text-5xl text-slate-700"></i>';
+                document.getElementById('visual-guide-name').textContent = "วันหยุดพักร่างกาย";
+                document.getElementById('visual-guide-steps').textContent = "ให้กล้ามเนื้อได้พักผ่อน ดื่มน้ำให้เพียงพอเพื่อฟื้นฟูร่างกาย";
+                document.getElementById('visual-guide-muscles').textContent = "พักผ่อน";
+                document.getElementById('visual-guide-breathing').textContent = "สม่ำเสมอ";
+                return;
+            }
+
+            document.getElementById('btn-timer-control').classList.remove('pointer-events-none', 'opacity-50');
+            const activeType = workoutDatabase[dayData.category];
+            if (!activeType) return;
+
+            const calculatedBurn = Math.round((activeType.burnRate / 80) * userStats.weight);
+            document.getElementById('cal-day-burn').innerHTML = `~ ${calculatedBurn} <span class='text-xs font-normal text-slate-400'>kcal</span>`;
+
+            activeType.exercises.forEach((ex, idx) => {
+                const exerciseRow = document.createElement('div');
+                exerciseRow.className = "p-4 bg-slate-800/40 border border-slate-800 hover:border-emerald-500/50 rounded-xl flex items-center justify-between transition-colors cursor-pointer";
+                exerciseRow.setAttribute('onclick', `loadExerciseGuide(${idx})`);
+                exerciseRow.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-lg bg-slate-800 text-xs font-bold text-slate-400 flex items-center justify-center border border-slate-700/50">
+                            ${idx + 1}
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xs sm:text-sm text-white">${ex.name}</h4>
+                            <p class="text-4xs text-emerald-400 mt-0.5">ทำงาน: ${ex.work} วินาที | พัก: ${ex.rest} วินาที</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-3xs font-semibold text-slate-400 hover:text-emerald-400 bg-slate-800 px-2 py-1 rounded-md border border-slate-700/60"><i class="fa-solid fa-eye mr-1"></i> ดูวิธีฝึก</span>
+                        <span class="text-xs font-extrabold text-slate-300 bg-slate-800 border border-slate-700/50 px-2.5 py-1 rounded-md">${ex.reps}</span>
+                    </div>
+                `;
+                listContainer.appendChild(exerciseRow);
+            });
+
+            setTimerToExercise(0);
+        }
+
+        function loadExerciseGuide(idx) {
+            const dayData = generatedWeeklyProgram[activePlannerDay];
+            if (dayData.isRest) return;
+
+            const activeType = workoutDatabase[dayData.category];
+            if (!activeType || idx >= activeType.exercises.length) return;
+
+            const ex = activeType.exercises[idx];
+            if (!ex.guide) return;
+
+            document.getElementById('visual-guide-animation').innerHTML = ex.guide.svg;
+            document.getElementById('visual-guide-name').textContent = ex.name;
+            document.getElementById('visual-guide-steps').innerHTML = ex.guide.steps;
+            document.getElementById('visual-guide-muscles').textContent = ex.guide.muscles;
+            document.getElementById('visual-guide-breathing').textContent = ex.guide.breathing;
+        }
+
+        function markCurrentDayCompleted() {
+            const dayData = generatedWeeklyProgram[activePlannerDay];
+            dayData.isCompleted = !dayData.isCompleted;
+
+            calculateDeficitGoalData();
+            renderDaysSidebar();
+            updateDetailedWorkoutUI();
+
+            if (dayData.isCompleted) {
+                showGlobalAlert(`ทำเครื่องหมายเสร็จสิ้นการฝึกประจำ${defaultWeeklyDaysTh[activePlannerDay]}แล้ว! สู้ต่อไปครับ!`, "success");
+            }
+        }
+
+        // --- 8. LIVE WORKOUT TIMER SYSTEM ---
+        function setTimerToExercise(index) {
+            const dayData = generatedWeeklyProgram[activePlannerDay];
+            if (dayData.isRest) return;
+
+            const activeType = workoutDatabase[dayData.category];
+            if (!activeType || index >= activeType.exercises.length) return;
+
+            currentExerciseIndex = index;
+            const currentEx = activeType.exercises[index];
+
+            document.getElementById('timer-exercise-name').textContent = currentEx.name;
+            
+            if (isRestPeriod) {
+                document.getElementById('timer-round-status').textContent = `ช่วงพักหายใจชดเชย (Rest) • ท่าถัดไป: ท่าที่ ${index + 2}`;
+                timerSecondsLeft = currentEx.rest;
+            } else {
+                document.getElementById('timer-round-status').textContent = `ท่าที่ ${index + 1}/${activeType.exercises.length} • ออกกำลังกายสมาธิ`;
+                timerSecondsLeft = currentEx.work;
+            }
+
+            document.getElementById('timer-countdown').textContent = timerSecondsLeft;
+            loadExerciseGuide(index);
+        }
+
+        function toggleWorkoutTimer() {
+            const btn = document.getElementById('btn-timer-control');
+            const spinner = document.getElementById('timer-spinner');
+
+            if (timerIsPlaying) {
+                clearInterval(timerInterval);
+                timerIsPlaying = false;
+                btn.innerHTML = '<i class="fa-solid fa-play"></i> <span>เล่นต่อ</span>';
+                spinner.classList.add('hidden');
+            } else {
+                timerIsPlaying = true;
+                btn.innerHTML = '<i class="fa-solid fa-pause"></i> <span>หยุดชั่วคราว</span>';
+                spinner.classList.remove('hidden');
+
+                playSyntheticBeep(600, 0.15);
+
+                timerInterval = setInterval(() => {
+                    timerSecondsLeft--;
+                    document.getElementById('timer-countdown').textContent = timerSecondsLeft;
+
+                    if (timerSecondsLeft <= 3 && timerSecondsLeft > 0) {
+                        playSyntheticBeep(440, 0.08);
+                    }
+
+                    if (timerSecondsLeft <= 0) {
+                        playSyntheticBeep(880, 0.3);
+
+                        const dayData = generatedWeeklyProgram[activePlannerDay];
+                        const activeType = workoutDatabase[dayData.category];
+
+                        if (!isRestPeriod && activeType.exercises[currentExerciseIndex].rest > 0) {
+                            isRestPeriod = true;
+                        } else {
+                            isRestPeriod = false;
+                            currentExerciseIndex++;
+                            
+                            if (currentExerciseIndex >= activeType.exercises.length) {
+                                clearInterval(timerInterval);
+                                timerIsPlaying = false;
+                                spinner.classList.add('hidden');
+                                btn.innerHTML = '<i class="fa-solid fa-play"></i> <span>เริ่มรอบใหม่</span>';
+                                document.getElementById('timer-exercise-name').textContent = "ฝึกซ้อมเสร็จสิ้นสมบูรณ์!";
+                                document.getElementById('timer-round-status').textContent = "เป้าหมายการซ้อมวันนี้เสร็จสิ้น";
+                                document.getElementById('timer-countdown').textContent = "FIN";
+                                playVictoryFanfare();
+                                
+                                generatedWeeklyProgram[activePlannerDay].isCompleted = true;
+                                renderDaysSidebar();
+                                updateDetailedWorkoutUI();
+                                return;
+                            }
+                        }
+
+                        setTimerToExercise(currentExerciseIndex);
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetWorkoutTimer() {
+            clearInterval(timerInterval);
+            timerIsPlaying = false;
+            isRestPeriod = false;
+            
+            const btn = document.getElementById('btn-timer-control');
+            btn.innerHTML = '<i class="fa-solid fa-play"></i> <span>เริ่มรอบการฝึก</span>';
+            
+            const spinner = document.getElementById('timer-spinner');
+            spinner.classList.add('hidden');
+
+            setTimerToExercise(0);
+        }
+
+        function playSyntheticBeep(freq, dur) {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.frequency.value = freq;
+                osc.type = "sine";
+
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + dur);
+            } catch (e) {
+                // Autoplay policy blocker
+            }
+        }
+
+        function playVictoryFanfare() {
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, idx) => {
+                setTimeout(() => {
+                    playSyntheticBeep(freq, 0.2);
+                }, idx * 150);
+            });
+        }
+
+        // --- 9. WEIGHT TRACKER LOGGING & CANVAS PLOTTING ---
+        function addWeightLog(event) {
+            if (event) event.preventDefault();
+
+            const loggedWeight = parseFloat(document.getElementById('log-weight-input').value);
+            const loggedDate = document.getElementById('log-date-input').value;
+
+            if (!loggedDate || isNaN(loggedWeight)) return;
+
+            const existingIdx = weightLogHistory.findIndex(log => log.date === loggedDate);
+            if (existingIdx !== -1) {
+                weightLogHistory[existingIdx].weight = loggedWeight;
+            } else {
+                weightLogHistory.push({ date: loggedDate, weight: loggedWeight });
+            }
+
+            weightLogHistory.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            document.getElementById('log-weight-input').value = "";
+            calculateDeficitGoalData();
+            drawWeightGraph();
+            showGlobalAlert("บันทึกสถิติน้ำหนักของวันที่เลือกเรียบร้อยแล้ว!", "success");
+        }
+
+        function resetWeightLogs() {
+            weightLogHistory = [
+                { date: new Date(Date.now() - 1000*60*60*24*7).toISOString().split('T')[0], weight: userStats.weight }
+            ];
+            calculateDeficitGoalData();
+            drawWeightGraph();
+            showGlobalAlert("ล้างประวัติกลับเป็นค่าตั้งต้นเรียบร้อยแล้ว", "success");
+        }
+
+        function drawWeightGraph() {
+            const canvas = document.getElementById('weightGraph');
+            if (!canvas) return;
+
+            const container = canvas.parentNode;
+            canvas.width = container.clientWidth * window.devicePixelRatio;
+            canvas.height = container.clientHeight * window.devicePixelRatio;
+
+            const ctx = canvas.getContext('2d');
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            ctx.clearRect(0, 0, width, height);
+
+            if (weightLogHistory.length === 0) return;
+
+            const paddingLeft = 45;
+            const paddingRight = 20;
+            const paddingTop = 30;
+            const paddingBottom = 40;
+
+            const chartWidth = width - paddingLeft - paddingRight;
+            const chartHeight = height - paddingTop - paddingBottom;
+
+            const weights = weightLogHistory.map(l => l.weight);
+            weights.push(userStats.targetWeight);
+            weights.push(userStats.weight);
+
+            const minWeight = Math.min(...weights) - 2;
+            const maxWeight = Math.max(...weights) + 2;
+            const weightRange = maxWeight - minWeight;
+
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 0.5;
+            ctx.font = '10px Sarabun, sans-serif';
+            ctx.fillStyle = '#94a3b8';
+
+            const gridLinesCount = 5;
+            for (let i = 0; i <= gridLinesCount; i++) {
+                const y = paddingTop + (chartHeight * (i / gridLinesCount));
+                const weightVal = maxWeight - (weightRange * (i / gridLinesCount));
+
+                ctx.beginPath();
+                ctx.moveTo(paddingLeft, y);
+                ctx.lineTo(width - paddingRight, y);
+                ctx.stroke();
+
+                ctx.fillText(`${weightVal.toFixed(1)} kg`, 10, y + 3);
+            }
+
+            const dataPointsCount = weightLogHistory.length;
+            ctx.textAlign = 'center';
+            weightLogHistory.forEach((log, idx) => {
+                const x = paddingLeft + (chartWidth * (idx / Math.max(1, dataPointsCount - 1)));
+                const dateParts = log.date.split('-');
+                const label = dateParts[2] ? `${dateParts[2]}/${dateParts[1]}` : log.date;
+
+                ctx.fillText(label, x, height - 15);
+            });
+
+            // Draw Ideal trend path
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            
+            const xStart = paddingLeft;
+            const yStart = paddingTop + (chartHeight * (1 - (userStats.weight - minWeight) / weightRange));
+            const xEnd = width - paddingRight;
+            const yEnd = paddingTop + (chartHeight * (1 - (userStats.targetWeight - minWeight) / weightRange));
+
+            ctx.moveTo(xStart, yStart);
+            ctx.lineTo(xEnd, yEnd);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw Actual plotted trend
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 3.5;
+            ctx.shadowColor = 'rgba(16, 185, 129, 0.4)';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+
+            weightLogHistory.forEach((log, idx) => {
+                const x = paddingLeft + (chartWidth * (idx / Math.max(1, dataPointsCount - 1)));
+                const y = paddingTop + (chartHeight * (1 - (log.weight - minWeight) / weightRange));
+
+                if (idx === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // Points dotting
+            weightLogHistory.forEach((log, idx) => {
+                const x = paddingLeft + (chartWidth * (idx / Math.max(1, dataPointsCount - 1)));
+                const y = paddingTop + (chartHeight * (1 - (log.weight - minWeight) / weightRange));
+
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.2)';
+                ctx.beginPath();
+                ctx.arc(x, y, 7, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#10b981';
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 9px Prompt, sans-serif';
+                ctx.fillText(`${log.weight} kg`, x, y - 10);
+            });
+        }
+
+        // --- 10. SYSTEM BANNER POPUP HANDLER ---
+        function showGlobalAlert(text, type = "success") {
+            const alert = document.getElementById('global-alert');
+            const alertText = document.getElementById('global-alert-text');
+            if(!alert || !alertText) return;
+            
+            alertText.textContent = text;
+            alert.classList.remove('hidden');
+
+            if (type === "success") {
+                alert.className = "mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-start space-x-3 text-emerald-300 shadow-sm";
+            } else {
+                alert.className = "mb-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl flex items-start space-x-3 text-rose-300 shadow-sm";
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            setTimeout(() => {
+                alert.classList.add('hidden');
+            }, 4500);
+        }
+    </script>
+</body>
+</html>
